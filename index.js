@@ -1,4 +1,7 @@
 let totalFileNamesLen = 0;
+let minRowDiv = document.getElementById("minRow");
+let outputDiv = document.getElementById("output");
+let allData = [];
 
 
 
@@ -7,6 +10,8 @@ var DataArr = [];
 PDFJS.workerSrc = '';
 
 function ExtractText() {
+    allData = [];
+
     var files = document.getElementById("file-id").files;
     totalFileNamesLen = files.length;
     console.log(`totalFileNamesLen =>>`, totalFileNamesLen);
@@ -132,7 +137,7 @@ function pdfAsArray(pdfAsArray) {
 
 let fileNameData = {};
 
-let allData = [];
+
 
 
 let fromDateElem = document.getElementById('fromDate');
@@ -190,7 +195,7 @@ function addTransactionsToFileNames(mainStr) {
         let startIndex = currentIndex - 2;
 
 
-        while ([" ", "/", ".", ","].includes(mainStr[currentIndex]) || !isNaN(mainStr[currentIndex])) {
+        while ([" ", "/", ".", ",", "-"].includes(mainStr[currentIndex]) || !isNaN(mainStr[currentIndex])) {
             currentIndex++;
         }
 
@@ -217,7 +222,7 @@ function addTransactionsToFileNames(mainStr) {
     let doesContainTwoYears = yearsStr.includes('jan') && yearsStr.includes('dec');
 
 
-    // let data = sortDate();
+    // let data = sortByDate();
     // console.log(data);
     let data = breakStrByDate(resStr, year, doesContainTwoYears);
     allData.push(...data);
@@ -233,17 +238,13 @@ function addTransactionsToFileNames(mainStr) {
     totalFileNamesLen--;
 
     if (totalFileNamesLen === 0) {
-        let minRowDiv = document.getElementById("minRow");
-        let outputDiv = document.getElementById("output");
+
 
         allData = filterData(allData);
 
-        let sortedData = sortDate(allData);
-        console.log(`sortedData =>`, sortedData);
-        outputDiv.innerHTML = "";
-        outputDiv.appendChild(convertDataForShowing(sortedData));
+        handleSortBy();
 
-        let minRow = getLowestAmountRow(sortedData);
+        let minRow = getLowestAmountRow(allData);
         console.log(`minRow =>`, minRow);
         minRowDiv.innerHTML = "";
         minRowDiv.appendChild(convertDataForShowing([minRow].filter(item => item)));
@@ -280,6 +281,7 @@ function breakStrByDate(str, year, doesContainTwoYears) {
             month,
             date: `${str[slashIndex + 1]}${str[slashIndex + 2]}`,
             amount,
+            amountInNumber: Number(amount.replaceAll(",", ""))
         })
 
         slashIndex = str.indexOf("/", slashIndex + 1);
@@ -288,14 +290,18 @@ function breakStrByDate(str, year, doesContainTwoYears) {
     return arr;
 }
 
-function sortDate(arr) {
-    console.log(`sortDate`);
+function sortByDate(arr) {
+    console.log(`sortByDate`);
     return arr.sort((a, b) => Number(a.year) - Number(b.year) || Number(a.month) - Number(b.month) || Number(a.date) - Number(b.date));
+}
+
+function sortyByAmount(arr) {
+    console.log(`sortyByAmount`);
+    return arr.sort((a, b) => a.amountInNumber - b.amountInNumber);
 }
 
 function getLowestAmountRow(arr) {
     console.log(`getLowestAmountRow`);
-    arr = arr.map(item => ({ ...item, amountInNumber: Number(item.amount.replaceAll(",", "")) }));
     let minAmountInNumber = Math.min(...arr.map(item => item.amountInNumber));
     return arr.find(item => item.amountInNumber === minAmountInNumber);
 }
@@ -333,4 +339,24 @@ function convertDataForShowing(arr) {
     }
 
     return mainDiv;
+}
+
+function handleSortBy(event = { value: "date" }) {
+    let sortMap = {
+        amount: sortyByAmount,
+        date: sortByDate,
+    }
+
+
+    outputDiv.innerHTML = "";
+
+
+    let data = sortMap[event.value](allData);
+    console.log(`event.value =>`, event.value);
+    console.log(`data =>`, data);
+    outputDiv.appendChild(convertDataForShowing(data));
+
+
+
+    console.log(`event`, event);
 }

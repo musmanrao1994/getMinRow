@@ -23,6 +23,14 @@ To Date:
 
 <div class="allRows">
     <h2>All rows</h2>
+
+    <label for="cars">Sort By:</label>
+    <select id="sortBy" onchange="handleSortBy(this);">
+        <option value="date">Date</option>
+        <option value="amount">Amount</option>
+    </select>
+
+
     <div id="output"></div>
 </div>
 
