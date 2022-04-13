@@ -1,0 +1,29 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/1.10.100/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.6.347/pdf.worker.entry.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/1.10.100/pdf.worker.min.js"></script>
+
+
+From Date:
+<input type="date" id="fromDate" value="1950-07-22">
+
+To Date:
+<input type="date" id="toDate" value="2050-07-22">
+
+<br>
+<br>
+<br>
+<input type="file" id="file-id" name="file_name" onchange="ExtractText();" multiple>
+
+
+<!-- a container for the output -->
+<div class="minRowContainer">
+    <h1>Min Row</h1>
+    <div id="minRow"></div>
+</div>
+
+<div class="allRows">
+    <h2>All rows</h2>
+    <div id="output"></div>
+</div>
+
+<script src="./index.js"></script>
