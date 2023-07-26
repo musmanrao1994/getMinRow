@@ -2,6 +2,7 @@ let totalFileNamesLen = 0;
 let minRowDiv = document.getElementById("minRow");
 let outputDiv = document.getElementById("output");
 let allData = [];
+let originalData = [];
 
 
 
@@ -10,7 +11,7 @@ var DataArr = [];
 PDFJS.workerSrc = '';
 
 function ExtractText() {
-    allData = [];
+    originalData = [];
 
     var files = document.getElementById("file-id").files;
     totalFileNamesLen = files.length;
@@ -150,6 +151,9 @@ let filter = {
     toTime: (new Date(toDateElem.value)).getTime(),
 }
 
+let sortByFilter = 'date';
+
+
 console.log(`filter`, filter);
 
 
@@ -170,6 +174,8 @@ function updateDate(event) {
     }
 
     console.log(`dateee`, d);
+
+    renderData();
 
 }
 
@@ -225,7 +231,7 @@ function addTransactionsToFileNames(mainStr) {
     // let data = sortByDate();
     // console.log(data);
     let data = breakStrByDate(resStr, year, doesContainTwoYears);
-    allData.push(...data);
+    originalData.push(...data);
 
     // fileNameData[fileName] = data;
 
@@ -238,23 +244,39 @@ function addTransactionsToFileNames(mainStr) {
     totalFileNamesLen--;
 
     if (totalFileNamesLen === 0) {
+        renderData();
 
-
-        allData = filterData(allData);
-
-        handleSortBy();
-
-        let minRow = getLowestAmountRow(allData);
-        console.log(`minRow =>`, minRow);
-        minRowDiv.innerHTML = "";
-        minRowDiv.appendChild(convertDataForShowing([minRow].filter(item => item)));
-
-
-
+ 
 
         // debugger;
 
     }
+
+
+}
+
+function renderData() {
+    allData = filterData(originalData);
+
+
+    let minRow = getLowestAmountRow(allData);
+    console.log(`minRow =>`, minRow);
+    minRowDiv.innerHTML = "";
+    minRowDiv.appendChild(convertDataForShowing([minRow].filter(item => item)));
+
+
+    let sortMap = {
+        amount: sortyByAmount,
+        date: sortByDate,
+    }
+
+    outputDiv.innerHTML = "";
+
+
+    allData = sortMap[sortByFilter](allData);
+    console.log(`sortByFilter =>`, sortByFilter);
+    outputDiv.appendChild(convertDataForShowing(allData));
+
 
 
 }
@@ -341,21 +363,12 @@ function convertDataForShowing(arr) {
     return mainDiv;
 }
 
-function handleSortBy(event = { value: "date" }) {
-    let sortMap = {
-        amount: sortyByAmount,
-        date: sortByDate,
-    }
+function update_sortByFilter(event = { value: "date" }) {
+    sortByFilter = event.value;
 
+    renderData();
 
-    outputDiv.innerHTML = "";
-
-
-    let data = sortMap[event.value](allData);
-    console.log(`event.value =>`, event.value);
-    console.log(`data =>`, data);
-    outputDiv.appendChild(convertDataForShowing(data));
-
+ 
 
 
     console.log(`event`, event);
